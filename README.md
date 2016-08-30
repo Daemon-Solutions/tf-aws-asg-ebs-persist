@@ -1,13 +1,63 @@
 # Descripton
 
+Module to provide EBS volume persistance to ASG based instances.
+
 This is based on the morea module.
 
-Modifications:
+Top levelModifications from morea module:
 
 ```
 Support for (Requires) Terraform 0.7
 Will create volumes for a newly created ASG
 ```
+
+Example reference:
+
+```
+module "kafka_ebs" {
+  source = "../localmodules/template.terraform.autoscaling-ebs-affinity/" 
+  aws_region = "eu-west-1"
+  
+  stack_instances {
+    stack_name = "${module.kafka5.asg_name}"
+    autoscaling_name = "${module.kafka5.asg_name}"	#Set this to the ASG Name
+    lambda_timeout = "300"				#Max 5 minute timeout from  Lambda
+    lambda_version = "1.0.0"				#Increment this if change any settings in module
+  }
+
+  general {				
+    env = "${var.envname}"		
+    client_name = "${var.envname}"
+    tag_value = "kafka"
+    tag_name = "ebsattatch"
+    time_limit = "300"
+  }
+  mount_point {				# Mount point on EC2 instance 
+    "0" = "/dev/sdf" 
+    "1" = "/dev/sdg"
+  }
+  block_iops  {				#This is 0 for gp2 type disks. Set to #val if using piops
+    "0" = "0"
+    "1" = "0"
+  }
+  block_size {				#Size in GB of disks
+    "0" = "11"
+    "1" = "12"
+  }
+  block_type {				#EBS voltype
+    "0" = "gp2"
+    "1" = "gp2"
+  }
+  tag_value {				#tags to differentiate different types of disks.
+    "0" = "kafka_data"			
+    "1" = "kafka_vol"
+  }  
+}
+```
+
+
+
+
 
 ---------------
 Old Docs:
