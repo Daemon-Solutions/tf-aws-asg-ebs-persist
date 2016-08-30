@@ -1,17 +1,23 @@
 # Descripton
 
 Module to provide EBS volume persistance to ASG based instances.
-
 This is based on the morea module.
 
-Top levelModifications from morea module:
+```
+-This can create multiple volume attatchments
+-If the volumes do not exist, it will create them. (E.g. on ASG creation)
+-Volume reszing does work for existing volumes. Snapshot the existing volumes beforehand (as we are limited to 5  mins for a lambda operation)
+-An s3 bucket to store the lambda function is created. 
 
+```
+
+Top level Modifications from morea module:
 ```
 Support for (Requires) Terraform 0.7
 Will create volumes for a newly created ASG
 ```
 
-Example reference:
+Example reference (from a kafka example):
 
 ```
 module "kafka_ebs" {
