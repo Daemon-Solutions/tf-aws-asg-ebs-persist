@@ -4,10 +4,11 @@ Module to provide EBS volume persistance to ASG based instances.
 This is based on the morea module.
 
 ```
--This can create multiple volume attatchments
--If the volumes do not exist, it will create them. (E.g. on ASG creation)
--Volume reszing does work for existing volumes. Snapshot the existing volumes beforehand (as we are limited to 5  mins for a lambda operation)
--An s3 bucket to store the lambda function is created. 
+- This can create multiple EBS volume attatchments
+- If the volumes do not exist, it will create them. (E.g. on ASG creation)
+- Volume reszing does work for existing volumes. Snapshot the existing volumes beforehand (as we are limited to 5  mins for a lambda operation)
+- An s3 bucket to store the lambda function is created. 
+- To deal with the ASG not sending an notificaiton to the SNS topic on first creation, there is a local-exec command run by terraform to send a TEST_NOTIFICTION, which triggers the lamba function to audit the ASG members and attatch volumes.
 
 ```
 
@@ -21,7 +22,7 @@ Example reference (from a kafka example):
 
 ```
 module "kafka_ebs" {
-  source = "../localmodules/template.terraform.autoscaling-ebs-affinity/" 
+  source = "../localmodules/tf-aws-asg-ebs-persist" 
   aws_region = "eu-west-1"
   
   stack_instances {
@@ -61,7 +62,7 @@ module "kafka_ebs" {
 }
 ```
 
-
+See below for mounting / performing resizing of increased size volume disks
 
 
 
