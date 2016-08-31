@@ -25,7 +25,7 @@ import json
 import logging
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 ec2 = boto3.client('ec2')
 route53 = boto3.client('route53')
