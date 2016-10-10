@@ -22,7 +22,7 @@ variable "stack_instances" {
     stack_name = "cluster-es"
 
     #Don't forget to update the version to update the Lambda code in AWS.
-    lambda_version = "v1.0.35"
+    lambda_version = "v1.0.36"
     lambda_timeout = "300"
 
     autoscaling_name = "as-elasticsearch"
