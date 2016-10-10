@@ -5,7 +5,8 @@ variable "aws_region" {
 #General Informations
 variable "general" {
   description = "General variables"
-  type = "map"
+  type        = "map"
+
   default {
     env         = "test2"
     client_name = "mattboret"
@@ -16,6 +17,7 @@ variable "general" {
 #Stack general informations
 variable "stack_instances" {
   description = "Autoscaling Stack Informations"
+
   default {
     stack_name = "cluster-es"
 
@@ -44,9 +46,10 @@ variable "block_type" {
     sdp = "gp2"
   }
 }
-    
+
 variable "block_size" {
   description = "EBS size for each disk"
+
   default {
     #The size of the new EBS volume in GB.
     sdp = "70"
@@ -65,7 +68,8 @@ variable "block_iops" {
 
 variable "tag_name" {
   description = "Tag Name to identify EBS volume"
-  type = "map"
+  type        = "map"
+
   default {
     #tag key:value to identify members of the stack.If your instances are already running with datas disks already attached. 
     #Think to tag the EBS volumes with these.
@@ -85,11 +89,13 @@ variable "tag_value" {
 
 variable "time_limit" {
   description = "The max age of a snapshot to use it"
-  type = "map"
+  type        = "map"
+
   default {
     #Time limit define the max delta time, in minutes, of the snapshot creation. If the creation time is less than this limit,
     #this snpashot will be used to create a new volume when the disk size has been increased. 
     sdp = "30"
+
     sdf = "20"
   }
 }
