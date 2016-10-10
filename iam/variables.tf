@@ -1,5 +1,3 @@
-variable "env" {
-}
+variable "env" {}
 
-variable "stack_name" {
-}
+variable "stack_name" {}

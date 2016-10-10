@@ -1,8 +1,5 @@
-variable "env" {
-}
+variable "env" {}
 
-variable "client_name" {
-}
+variable "client_name" {}
 
-variable "aws_region" {
-}
+variable "aws_region" {}

@@ -1,6 +1,6 @@
 resource "aws_iam_role" "lambda_iam" {
   name               = "iam.${var.env}.lambda.${var.stack_name}"
-  assume_role_policy = "${template_file.assume_role_policy_lambda.rendered}"
+  assume_role_policy = "${data.template_file.assume_role_policy_lambda.rendered}"
 }
 
 resource "aws_iam_instance_profile" "lambda_profile" {
@@ -11,5 +11,5 @@ resource "aws_iam_instance_profile" "lambda_profile" {
 resource "aws_iam_role_policy" "lambda_pol" {
   name   = "policy.${var.env}.lambda.${var.stack_name}"
   role   = "${aws_iam_role.lambda_iam.id}"
-  policy = "${template_file.role_policy_lambda.rendered}"
+  policy = "${data.template_file.role_policy_lambda.rendered}"
 }

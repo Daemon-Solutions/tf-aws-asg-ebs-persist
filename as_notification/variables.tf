@@ -1,5 +1,3 @@
-variable "autoscaling_name" {
-}
+variable "autoscaling_name" {}
 
-variable "sns_topic_arn" {
-}
+variable "sns_topic_arn" {}
