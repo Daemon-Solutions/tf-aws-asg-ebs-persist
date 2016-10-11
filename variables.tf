@@ -14,16 +14,17 @@ variable "general" {
   }
 }
 
-#Stack general informations
+# Stack general informations
 variable "stack_instances" {
   description = "Autoscaling Stack Informations"
 
   default {
     stack_name = "cluster-es"
 
-    #Don't forget to update the version to update the Lambda code in AWS.
-    lambda_version = "v1.0.36"
+    # Don't forget to update the version to update the Lambda code in AWS.
+    lambda_version = "v1.0.37"
     lambda_timeout = "300"
+    lambda_client  = "elasticsearch"
 
     autoscaling_name = "as-elasticsearch"
   }

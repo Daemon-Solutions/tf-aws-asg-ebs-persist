@@ -1,10 +1,13 @@
 resource "aws_s3_bucket_object" "object" {
-  bucket = "s3.lambdas.${var.env}.${var.client_name}"
-  key    = "lambda_handler/lambda_as_ebs-${var.env}-${var.lambda_version}-management.zip"
-  source = "/tmp/lambda_as_ebs-${var.env}-${var.lambda_version}-management.zip"
+  depends_on = ["null_resource.build_lambda_zip"]
+  bucket     = "s3.lambdas.${var.env}.${var.client_name}"
+  key        = "lambda_handler/lambda_as_ebs-${var.env}-${var.lambda_version}-${var.lambda_client}-management.zip"
+  source     = "/tmp/lambda_as_ebs-${var.env}-${var.lambda_version}-management.zip"
 }
 
 resource "aws_lambda_function" "new_lambda" {
+  depends_on = ["aws_s3_bucket_object.object"]
+
   s3_bucket         = "s3.lambdas.${var.env}.${var.client_name}"
   s3_key            = "${aws_s3_bucket_object.object.id}"
   s3_object_version = "null"
@@ -14,7 +17,6 @@ resource "aws_lambda_function" "new_lambda" {
   description       = "Lambda function to manage the EBS affinity for the stack ${var.stack_name} in ${var.env} env"
   runtime           = "python2.7"
   timeout           = "${var.lambda_timeout}"
-  depends_on        = ["null_resource.build_lambda_conf"]
 }
 
 resource "aws_sns_topic_subscription" "lambda_subscription" {

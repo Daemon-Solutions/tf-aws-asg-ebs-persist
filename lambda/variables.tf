@@ -10,6 +10,8 @@ variable "stack_name" {}
 
 variable "lambda_role_arn" {}
 
+variable "lambda_client" {}
+
 variable "lambda_version" {}
 
 variable "lambda_timeout" {}

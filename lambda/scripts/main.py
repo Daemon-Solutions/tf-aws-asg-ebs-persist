@@ -1,3 +1,5 @@
+#!/bin/env python
+# -*- coding: utf-8 -*-
 """
     Lambda function to manage the EBS datas disk affinity for a new
     instance(defined by the instance id in the SNS notification).
@@ -13,8 +15,6 @@
             "To Delete": "True"
         * Support one or more EBS.
 """
-#!/bin/env python
-# -*- coding: utf-8 -*-
 
 from __future__ import print_function
 from ConfigParser import SafeConfigParser
@@ -46,7 +46,8 @@ def retrieve_instance_infos(instanceid):
     try:
         instance = ec2.describe_instances(InstanceIds=[instanceid])
         disks = [v['DeviceName'] for v in instance['Reservations'][0]['Instances'][0]['BlockDeviceMappings']]
-        return {"az": instance['Reservations'][0]['Instances'][0]['Placement']['AvailabilityZone'], "disks_attach": disks,
+        return {"az": instance['Reservations'][0]['Instances'][0]['Placement']['AvailabilityZone'],
+                "disks_attach": disks,
                 "vpc_id": instance['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['VpcId'],
                 "private_ip": instance['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['PrivateIpAddress']}
     except botocore.exceptions.ClientError as e:
@@ -95,7 +96,10 @@ def attach_ebs_volume(volume_id, instance_id, mount_point='/dev/sdp'):
     return False
 
 
-def check_the_resource_state(wait_type, resource_name, resource_id,  max_retry=120):
+def check_the_resource_state(wait_type,
+                             resource_name,
+                             resource_id,
+                             max_retry=120):
     """ Return True only if the resource is ready(no operation in progress).
 
         To list all available waiters: ec2.waiter_names

@@ -36,6 +36,7 @@ module "lambda" {
   lambda_role_arn = "${module.iam.iam_role_lambda_arn}"
   lambda_version  = "${var.stack_instances.["lambda_version"]}"
   lambda_timeout  = "${var.stack_instances.["lambda_timeout"]}"
+  lambda_client   = "${var.stack_instances.["lambda_client"]}"
   volume_size     = ["${var.block_size}"]
   volume_type     = ["${var.block_type}"]
   volume_iops     = ["${var.block_iops}"]

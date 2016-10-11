@@ -4,7 +4,7 @@ resource "null_resource" "clean_lambda_conf" {
   }
 
   provisioner "local-exec" {
-    command = "rm /tmp/lambda_as_ebs.conf |true"
+    command = "rm /tmp/lambda_as_ebs.conf||true; rm /tmp/lambda_as_ebs-${var.env}-${var.lambda_version}-management.zip||true"
   }
 }
 
@@ -26,7 +26,7 @@ resource "null_resource" "build_lambda_zip" {
     lambda_version = "${var.lambda_version}"
   }
 
-  depends_on = ["null_resource.clean_lambda_conf", "null_resource.build_lambda_conf"]
+  depends_on = ["null_resource.build_lambda_conf"]
 
   provisioner "local-exec" {
     command = "cp -f ${path.module}/scripts/main.py /tmp/; cd /tmp/; zip -r lambda_as_ebs-${var.env}-${var.lambda_version}-management.zip main.py lambda_as_ebs.conf"
