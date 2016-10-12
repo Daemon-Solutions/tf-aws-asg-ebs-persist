@@ -1,22 +1,64 @@
-resource "aws_s3_bucket_object" "object" {
-  depends_on = ["null_resource.build_lambda_zip"]
-  bucket     = "s3.lambdas.${var.env}.${var.client_name}"
-  key        = "lambda_handler/lambda_as_ebs-${var.env}-${var.lambda_version}-${var.lambda_client}-management.zip"
-  source     = "/tmp/lambda_as_ebs-${var.env}-${var.lambda_version}-management.zip"
+# Null resources creating configs and zips
+resource "null_resource" "clean_local_lambda_confs" {
+  triggers {
+    lambda_version = "${var.lambda_version}"
+  }
+
+  provisioner "local-exec" {
+    command = "rm /tmp/${var.lambda_client}/lambda_as_ebs.conf||true; rm /tmp/${var.lambda_client}/lambda_as_ebs-${var.env}-${var.lambda_version}-${var.lambda_client}-management.zip||true"
+  }
 }
 
-resource "aws_lambda_function" "new_lambda" {
-  depends_on = ["aws_s3_bucket_object.object"]
+resource "null_resource" "build_lambda_conf" {
+  triggers {
+    lambda_version = "${var.lambda_version}"
+  }
 
-  s3_bucket         = "s3.lambdas.${var.env}.${var.client_name}"
-  s3_key            = "${aws_s3_bucket_object.object.id}"
-  s3_object_version = "null"
-  function_name     = "lambda_as_es_${var.env}_${var.stack_name}"
-  role              = "${var.lambda_role_arn}"
-  handler           = "main.lambda_handler"
-  description       = "Lambda function to manage the EBS affinity for the stack ${var.stack_name} in ${var.env} env"
-  runtime           = "python2.7"
-  timeout           = "${var.lambda_timeout}"
+  depends_on = ["null_resource.clean_local_lambda_confs"]
+  count      = "${length(keys(var.mount_point))}"
+
+  provisioner "local-exec" {
+    command = "mkdir /tmp/${var.lambda_client}; echo  \"[${lookup(var.mount_point, count.index)}]]\ntime_limit=${var.time_limit}\nvolume_size=${lookup(var.volume_size, count.index)}\nvolume_type=${lookup(var.volume_type, count.index)}\nvolume_iops=${lookup(var.volume_iops, count.index)}\nmount_point=${lookup(var.mount_point, count.index)}\ntag_name=${var.tag_name}\ntag_value=${lookup(var.tag_value, count.index)}\n  \" >> /tmp/${var.lambda_client}/lambda_as_ebs.conf"
+  }
+}
+
+resource "null_resource" "build_lambda_zip" {
+  triggers {
+    lambda_version = "${var.lambda_version}"
+  }
+
+  depends_on = ["null_resource.build_lambda_conf"]
+
+  provisioner "local-exec" {
+    command = "cp -f ${path.module}/scripts/main.py /tmp/${var.lambda_client}/; cd /tmp/${var.lambda_client}/; zip -r lambda_as_ebs-${var.env}-${var.lambda_version}-${var.lambda_client}-management.zip main.py lambda_as_ebs.conf"
+  }
+}
+
+resource "null_resource" "notifySNSTopic" {
+  triggers {
+    lambda_version = "${var.lambda_version}"
+  }
+
+  depends_on = ["aws_sns_topic_subscription.lambda_subscription"]
+
+  provisioner "local-exec" {
+    /* Sends the  SNS Topic a notificiation that the ASG has been created. Works
+           around dependency problem of SNS ASG notificiation cycle. */
+    command = "aws sns publish --topic-arn ${var.sns_topic} --message \"{ \\\"Event\\\": \\\"autoscaling:TEST_NOTIFICATION\\\", \\\"AutoScalingGroupName\\\": \\\"${var.stack_name}\\\" }\""
+  }
+}
+
+# Main stuff
+resource "aws_lambda_function" "new_lambda" {
+  depends_on = ["null_resource.build_lambda_zip"]
+
+  filename         = "/tmp/${var.lambda_client}/lambda_as_ebs-${var.env}-${var.lambda_version}-${var.lambda_client}-management.zip"
+  function_name    = "lambda_as_es_${var.env}_${var.stack_name}"
+  role             = "${var.lambda_role_arn}"
+  handler          = "main.lambda_handler"
+  description      = "Lambda function to manage the EBS affinity for the stack ${var.stack_name} in ${var.env} env"
+  runtime          = "python2.7"
+  timeout          = "${var.lambda_timeout}"
 }
 
 resource "aws_sns_topic_subscription" "lambda_subscription" {
