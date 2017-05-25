@@ -38,4 +38,8 @@ variable "tag_value" {
   type = "map"
 }
 
+variable "encrypted" {
+  type = "map"
+}
+
 variable "client_name" {}

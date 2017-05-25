@@ -17,7 +17,7 @@ resource "null_resource" "build_lambda_conf" {
   count      = "${length(keys(var.mount_point))}"
 
   provisioner "local-exec" {
-    command = "echo  \"[${lookup(var.mount_point, count.index)}]]\ntime_limit=${var.time_limit}\nvolume_size=${lookup(var.volume_size, count.index)}\nvolume_type=${lookup(var.volume_type, count.index)}\nvolume_iops=${lookup(var.volume_iops, count.index)}\nmount_point=${lookup(var.mount_point, count.index)}\ntag_name=${var.tag_name}\ntag_value=${lookup(var.tag_value, count.index)}\n  \" >> /tmp/lambda_as_ebs.conf"
+    command = "echo  \"[${lookup(var.mount_point, count.index)}]]\ntime_limit=${var.time_limit}\nvolume_size=${lookup(var.volume_size, count.index)}\nvolume_type=${lookup(var.volume_type, count.index)}\nvolume_iops=${lookup(var.volume_iops, count.index)}\nmount_point=${lookup(var.mount_point, count.index)}\ntag_name=${var.tag_name}\ntag_value=${lookup(var.tag_value, count.index)}\nencrypted=${lookup(var.encrypted, count.index)}\n  \" >> /tmp/lambda_as_ebs.conf"
   }
 }
 

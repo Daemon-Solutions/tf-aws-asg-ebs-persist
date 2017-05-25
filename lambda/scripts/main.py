@@ -74,7 +74,8 @@ def find_ebs_volume(filters, az):
             if volume['VolumeType'] == 'io1':
                 iops = volume['Iops']
             return {'id': volume['VolumeId'], 'size': volume['Size'],
-                    'type': volume['VolumeType'], 'iops': iops}
+                    'type': volume['VolumeType'], 'iops': iops,
+                    'encrypted': volume['Encrypted']}
     return {}
 
 
@@ -115,12 +116,13 @@ def check_the_resource_state(wait_type, resource_name, resource_id,  max_retry=1
     return False
 
 
-def create_ebs_volume(tags, az, volume_type, volume_size, iops, snap_id=None):
+def create_ebs_volume(tags, az, volume_type, volume_size, iops, encrypted, snap_id=None):
     """ Create a new EBS volume, tag it and returns the EBS id.
 
         :param  tags  dict: The tag name and tag value used to filter EBS
                             volumes.
         :param  az    string: The AZ where to create the volume.
+        :param  encrypted bool: Enable encryption of the volume.
         :param  volume_type  string: The type of volume to create(ex:GP2)
         :param  volume_size  int: The size(GB) of the new volume to create.
         :param  Iops  string: The number of Iops to provision.
@@ -133,23 +135,27 @@ def create_ebs_volume(tags, az, volume_type, volume_size, iops, snap_id=None):
             if iops:
                 volume_id = ec2.create_volume(Size=int(volume_size),
                                               AvailabilityZone=az,
+                                              Encrypted=encrypted,
                                               VolumeType=volume_type,
                                               Iops=iops,
                                               SnapshotId=snap_id)['VolumeId']
             else:
                 volume_id = ec2.create_volume(Size=int(volume_size),
                                               AvailabilityZone=az,
+                                              Encrypted=encrypted,
                                               VolumeType=volume_type,
                                               SnapshotId=snap_id)['VolumeId']
         else:
             if iops:
                 volume_id = ec2.create_volume(Size=int(volume_size),
                                               AvailabilityZone=az,
+                                              Encrypted=encrypted,
                                               VolumeType=volume_type,
                                               Iops=iops)['VolumeId']
             else:
                 volume_id = ec2.create_volume(Size=int(volume_size),
                                               AvailabilityZone=az,
+                                              Encrypted=encrypted,
                                               VolumeType=volume_type)['VolumeId']
         if check_the_resource_state('volume_available',
                                     'VolumeIds',
@@ -256,6 +262,7 @@ def manage_ebs_volume(config, instanceid, instance_infos):
                                        config['volume_type'],
                                        config['volume_size'],
                                        config['volume_iops'],
+                                       config['encrypted']
                                        snap_id)
         else:
             logger.error("Can\'t create snapshot")
@@ -266,7 +273,8 @@ def manage_ebs_volume(config, instanceid, instance_infos):
                                    instance_infos['az'],
                                    config['volume_type'],
                                    config['volume_size'],
-                                   config['volume_iops'])
+                                   config['volume_iops'],
+                                   config['encrypted'])
     if ebs_id:
         return attach_ebs_volume(ebs_id, instanceid, config['mount_point'])
     return False
@@ -303,6 +311,7 @@ def load_configuration_params(parser, section_name):
                "Values": [parser.get(section_name, 'tag_value')]}
     tags = [{'Key': parser.get(section_name, 'tag_name'),
              'Value': parser.get(section_name, 'tag_value')}]
+    encrypted = True if parser.get(section_name, 'encrypted').lower() in ['true', '1'] else False
     params = {'volume_size': int(parser.get(section_name, 'volume_size')),
               'volume_type': parser.get(section_name, 'volume_type'),
               'mount_point': parser.get(section_name, 'mount_point'),
@@ -310,6 +319,7 @@ def load_configuration_params(parser, section_name):
               'time_limit': parser.get(section_name, 'time_limit'),
               'tags': tags,
               'filters': filters}
+              'encrypted': encrypted}
     return params
 
 
