@@ -269,7 +269,7 @@ def manage_ebs_volume(config, instanceid, instance_infos):
                                        config['volume_type'],
                                        config['volume_size'],
                                        config['volume_iops'],
-                                       config['encrypted']
+                                       config['encrypted'],
                                        snap_id)
         else:
             logger.error("Can\'t create snapshot")
