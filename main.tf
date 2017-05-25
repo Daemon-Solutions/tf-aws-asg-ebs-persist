@@ -43,4 +43,5 @@ module "lambda" {
   tag_name        = "${var.general["tag_value"]}"
   tag_value       = ["${var.tag_value}"]
   time_limit      = "${var.general["time_limit"]}"
+  encrypted       = "${var.encrypted}"
 }
