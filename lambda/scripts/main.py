@@ -241,17 +241,24 @@ def manage_ebs_volume(config, instanceid, instance_infos):
         :return Bool
     """
     ebs_infos = find_ebs_volume(config['filters'], instance_infos['az'])
-    if ebs_infos and int(ebs_infos['size']) == int(config['volume_size']) and ebs_infos['type'] == config['volume_type'] and int(ebs_infos['iops']) == int(config['volume_iops']):
+    if ebs_infos and int(ebs_infos['size']) == int(config['volume_size']) \
+                 and ebs_infos['type'] == config['volume_type'] \
+                 and int(ebs_infos['iops']) == int(config['volume_iops']\
+                 and ebs_infos['encrypted'] == config['encrypted']):
         ebs_id = ebs_infos['id']
     elif ebs_infos:
         new_vol_infos = {
             "size": config['volume_size'],
             "type": config['volume_type'],
-            "iops": config['volume_iops']
+            "iops": config['volume_iops'],
+            'encrypted': config['encrypted']
         }
         logger.debug("Difference found between the EBS parameters: {0} request and the EBS volume running: {1}" .format(new_vol_infos, ebs_infos))
         if int(new_vol_infos["size"]) < int(ebs_infos["size"]) and ebs_infos['type'] == config['volume_type']:
             logger.error("Can\'t continue because the new volume size must be greater than the current")
+            return False
+        elif new_vol_infos['encrypted'] != ebs_infos['encrypted']:
+            logger.error("Can\'t continue because volume encryption cannot be modfied after volume creation")
             return False
         snap_id = create_snapshot_if_not_exist(ebs_infos['id'],
                                                config['tags'],
