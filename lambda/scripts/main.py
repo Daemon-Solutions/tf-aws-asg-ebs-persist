@@ -325,7 +325,7 @@ def load_configuration_params(parser, section_name):
               'volume_iops': int(parser.get(section_name, 'volume_iops')),
               'time_limit': parser.get(section_name, 'time_limit'),
               'tags': tags,
-              'filters': filters}
+              'filters': filters,
               'encrypted': encrypted}
     return params
 
