@@ -243,8 +243,8 @@ def manage_ebs_volume(config, instanceid, instance_infos):
     ebs_infos = find_ebs_volume(config['filters'], instance_infos['az'])
     if ebs_infos and int(ebs_infos['size']) == int(config['volume_size']) \
                  and ebs_infos['type'] == config['volume_type'] \
-                 and int(ebs_infos['iops']) == int(config['volume_iops']\
-                 and ebs_infos['encrypted'] == config['encrypted']):
+                 and int(ebs_infos['iops']) == int(config['volume_iops']) \
+                 and ebs_infos['encrypted'] == config['encrypted']:
         ebs_id = ebs_infos['id']
     elif ebs_infos:
         new_vol_infos = {
