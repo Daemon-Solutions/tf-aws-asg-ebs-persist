@@ -1,2 +1,2 @@
 *.swp
-lambda/lambda_as_ebs.conf
+lambda/scripts/lambda_as_ebs.conf
