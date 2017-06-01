@@ -318,7 +318,7 @@ def load_configuration_params(parser, section_name):
                "Values": [parser.get(section_name, 'tag_value')]}
     tags = [{'Key': parser.get(section_name, 'tag_name'),
              'Value': parser.get(section_name, 'tag_value')}]
-    encrypted = True if parser.get(section_name, 'encrypted').lower() in ['true', '1'] else False
+    encrypted = parser.get(section_name, 'encrypted').lower() in ['true', '1']
     params = {'volume_size': int(parser.get(section_name, 'volume_size')),
               'volume_type': parser.get(section_name, 'volume_type'),
               'mount_point': parser.get(section_name, 'mount_point'),
