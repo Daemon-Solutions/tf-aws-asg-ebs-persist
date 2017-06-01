@@ -36,7 +36,7 @@ EOFTERRAFORM
 
 ## create lambda package
 data "archive_file" "lambda_package" {
-  depends_on = [null_resource.build_lambda_conf]
+  depends_on  = ["null_resource.build_lambda_conf"]
   type        = "zip"
   source_dir  = "${path.module}/scripts"
   output_path = "/tmp/lambda_as_ebs-${var.env}-${var.lambda_version}-management.zip"
