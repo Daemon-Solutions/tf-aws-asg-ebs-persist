@@ -4,7 +4,7 @@ resource "null_resource" "clean_lambda_conf" {
   }
 
   provisioner "local-exec" {
-    command = "rm /tmp/lambda_as_ebs.conf |true"
+    command = "rm ${path.module}/scripts/lambda_as_ebs.conf |true"
   }
 }
 
@@ -34,16 +34,12 @@ EOFTERRAFORM
   }
 }
 
-resource "null_resource" "build_lambda_zip" {
-  triggers {
-    lambda_version = "${var.lambda_version}"
-  }
-
-  depends_on = ["null_resource.clean_lambda_conf", "null_resource.build_lambda_conf"]
-
-  provisioner "local-exec" {
-    command = "cp -f ${path.module}/scripts/main.py /tmp/; cd /tmp/; zip -r lambda_as_ebs-${var.env}-${var.lambda_version}-management.zip main.py lambda_as_ebs.conf"
-  }
+## create lambda package
+data "archive_file" "lambda_package" {
+  depends_on = [null_resource.build_lambda_conf]
+  type        = "zip"
+  source_dir  = "${path.module}/scripts"
+  output_path = "/tmp/lambda_as_ebs-${var.env}-${var.lambda_version}-management.zip"
 }
 
 resource "null_resource" "notifySNSTopic" {
