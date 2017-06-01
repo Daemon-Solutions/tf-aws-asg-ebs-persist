@@ -37,4 +37,5 @@ module "lambda" {
   tag_value       = ["${var.tag_value}"]
   time_limit      = "${var.general["time_limit"]}"
   encrypted       = "${var.encrypted}"
+  aws_region      = "${var.aws_region}"
 }
