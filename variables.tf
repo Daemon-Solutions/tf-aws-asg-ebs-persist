@@ -99,3 +99,12 @@ variable "time_limit" {
     sdf = "20"
   }
 }
+
+variable "encrypted" {
+  description = "Enable encryption for EBS volume"
+  type        = "map"
+
+  default {
+    sdp = "False"
+  }
+}

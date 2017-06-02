@@ -59,6 +59,12 @@ module "kafka_ebs" {
     "0" = "kafka_data"			
     "1" = "kafka_vol"
   }  
+  
+  encrypted {				# encrypts EBS, "True" or "true" or "1" will enable encryption, anything else will be evaluated to False
+    "0" = "True"
+    "1" = "False"
+    "2" = "True"
+  }  
 }
 ```
 

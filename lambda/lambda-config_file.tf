@@ -17,7 +17,20 @@ resource "null_resource" "build_lambda_conf" {
   count      = "${length(keys(var.mount_point))}"
 
   provisioner "local-exec" {
-    command = "echo  \"[${lookup(var.mount_point, count.index)}]]\ntime_limit=${var.time_limit}\nvolume_size=${lookup(var.volume_size, count.index)}\nvolume_type=${lookup(var.volume_type, count.index)}\nvolume_iops=${lookup(var.volume_iops, count.index)}\nmount_point=${lookup(var.mount_point, count.index)}\ntag_name=${var.tag_name}\ntag_value=${lookup(var.tag_value, count.index)}\n  \" >> /tmp/lambda_as_ebs.conf"
+    command = <<EOFTERRAFORM
+cat << EOFBASH  > /tmp/lambda_as_ebs.conf
+[${lookup(var.mount_point, count.index)}]
+time_limit=${var.time_limit}
+volume_size=${lookup(var.volume_size, count.index)}
+volume_type=${lookup(var.volume_type, count.index)}
+volume_iops=${lookup(var.volume_iops, count.index)}
+mount_point=${lookup(var.mount_point, count.index)}
+tag_name=${var.tag_name}
+tag_value=${lookup(var.tag_value, count.index)}
+encrypted=${lookup(var.encrypted, count.index)}
+
+EOFBASH
+EOFTERRAFORM
   }
 }
 
