@@ -20,13 +20,6 @@ module "iam" {
   stack_name = "${var.stack_instances.["stack_name"]}"
 }
 
-module "s3" {
-  source      = "s3"
-  env         = "${var.general["env"]}"
-  client_name = "${var.general.["client_name"]}"
-  aws_region  = "${var.aws_region}"
-}
-
 module "lambda" {
   source          = "lambda"
   client_name     = "${var.general["client_name"]}"
@@ -44,4 +37,5 @@ module "lambda" {
   tag_value       = ["${var.tag_value}"]
   time_limit      = "${var.general["time_limit"]}"
   encrypted       = "${var.encrypted}"
+  aws_region      = "${var.aws_region}"
 }

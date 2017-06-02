@@ -1,3 +1,5 @@
+variable "aws_region" {}
+
 variable "env" {}
 
 variable "sns_topic" {}
