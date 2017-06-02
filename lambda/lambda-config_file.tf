@@ -1,10 +1,14 @@
-resource "null_resource" "clean_lambda_conf" {
+resource "null_resource" "prepare_config_dir" {
   triggers {
     lambda_version = "${var.lambda_version}"
   }
 
   provisioner "local-exec" {
-    command = "rm ${path.module}/scripts/lambda_as_ebs.conf |true"
+    command = <<EOF
+rm -rf ${path.module}/files/${var.stack_name}
+mkdir -p ${path.module}/files/${var.stack_name}
+cp -a ${path.module}/scripts/main.py ${path.module}/files/${var.stack_name}/
+EOF
   }
 }
 
@@ -13,12 +17,12 @@ resource "null_resource" "build_lambda_conf" {
     lambda_version = "${var.lambda_version}"
   }
 
-  depends_on = ["null_resource.clean_lambda_conf"]
+  depends_on = ["null_resource.prepare_config_dir"]
   count      = "${length(keys(var.mount_point))}"
 
   provisioner "local-exec" {
     command = <<EOFTERRAFORM
-cat << EOFBASH  > /tmp/lambda_as_ebs.conf
+cat << EOFBASH  >> ${path.module}/files/${var.stack_name}/lambda_as_ebs.conf
 [${lookup(var.mount_point, count.index)}]
 time_limit=${var.time_limit}
 volume_size=${lookup(var.volume_size, count.index)}
@@ -38,8 +42,8 @@ EOFTERRAFORM
 data "archive_file" "lambda_package" {
   depends_on  = ["null_resource.build_lambda_conf"]
   type        = "zip"
-  source_dir  = "${path.module}/scripts"
-  output_path = "/tmp/lambda_as_ebs-${var.env}-${var.lambda_version}-management.zip"
+  source_dir  = "${path.module}/files/${var.stack_name}"
+  output_path = "${path.module}/files/lambda_as_ebs-${var.env}-${var.stack_name}-${var.lambda_version}-management.zip"
 }
 
 resource "null_resource" "notifySNSTopic" {
