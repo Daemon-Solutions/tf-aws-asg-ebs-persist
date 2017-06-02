@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "new_lambda" {
-  filename         = "/tmp/lambda_as_ebs-${var.env}-${var.lambda_version}-management.zip"
+  filename         = "${path.module}/files/lambda_as_ebs-${var.env}-${var.stack_name}-${var.lambda_version}-management.zip"
   source_code_hash = "${data.archive_file.lambda_package.output_base64sha256}"
   function_name    = "lambda_as_es_${var.env}_${var.stack_name}"
   role             = "${var.lambda_role_arn}"
