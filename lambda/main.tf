@@ -8,6 +8,10 @@ resource "aws_lambda_function" "new_lambda" {
   runtime          = "python2.7"
   timeout          = "${var.lambda_timeout}"
   depends_on       = ["data.archive_file.lambda_package"]
+
+  lifecycle {
+    ignore_changes = ["filename"]
+  }
 }
 
 resource "aws_sns_topic_subscription" "lambda_subscription" {
