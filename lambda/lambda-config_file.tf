@@ -1,3 +1,6 @@
+# get current account id
+data "aws_caller_identity" "current" {}
+
 data "external" "lambda_files" {
   program = ["python", "${path.module}/scripts/data.py"]
 
