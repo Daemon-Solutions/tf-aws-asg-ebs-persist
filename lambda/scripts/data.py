@@ -35,21 +35,21 @@ shutil.copyfile(os.path.join(module_path, 'scripts', 'main.py'),
                 os.path.join(stack_dir, 'main.py'))
 
 # generate config file
-Config = ConfigParser.ConfigParser()
-cfgfile = open(os.path.join(stack_dir, 'lambda_as_ebs.conf'), 'w')
+config = ConfigParser.ConfigParser()
 for key in mount_point.keys():
     section = mount_point[key]
-    Config.add_section(section)
-    Config.set(section, 'time_limit', time_limit)
-    Config.set(section, 'volume_size', volume_size[key])
-    Config.set(section, 'volume_type', volume_type[key])
-    Config.set(section, 'volume_iops', volume_iops[key])
-    Config.set(section, 'mount_point', mount_point[key])
-    Config.set(section, 'tag_name', tag_name)
-    Config.set(section, 'tag_value', tag_value[key])
-    Config.set(section, 'encrypted', encrypted[key])
-Config.write(cfgfile)
-cfgfile.close()
+    config.add_section(section)
+    config.set(section, 'time_limit', time_limit)
+    config.set(section, 'volume_size', volume_size[key])
+    config.set(section, 'volume_type', volume_type[key])
+    config.set(section, 'volume_iops', volume_iops[key])
+    config.set(section, 'mount_point', mount_point[key])
+    config.set(section, 'tag_name', tag_name)
+    config.set(section, 'tag_value', tag_value[key])
+    config.set(section, 'encrypted', encrypted[key])
+
+with open(os.path.join(stack_dir, 'lambda_as_ebs.conf'), 'w') as cfgfile:
+    config.write(cfgfile)
 
 # return json
 json.dump({"source_dir": stack_dir}, sys.stdout)
