@@ -45,5 +45,3 @@ variable "encrypted" {
 }
 
 variable "client_name" {}
-
-variable "log_level" {}

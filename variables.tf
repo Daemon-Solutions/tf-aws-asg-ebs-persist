@@ -108,8 +108,3 @@ variable "encrypted" {
     sdp = "False"
   }
 }
-
-variable "lambda_log_level" {
-  description = "Log level for lambda function. Valid options are those of python logging module: CRITICAL, ERROR, WARNING, INFO, DEBUG"
-  default     = "INFO"
-}

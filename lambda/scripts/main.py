@@ -24,12 +24,9 @@ import dateutil
 import botocore
 import json
 import logging
-import os
 
-log_level = os.environ['LOG_LEVEL']
 logger = logging.getLogger()
-log_level_name = logging.getLevelName(log_level)
-logger.setLevel(log_level_name)
+logger.setLevel(logging.INFO)
 
 ec2 = boto3.client('ec2')
 route53 = boto3.client('route53')
@@ -93,7 +90,6 @@ def attach_ebs_volume(volume_id, instance_id, mount_point='/dev/sdp'):
         if not check_the_resource_state('volume_available', 'VolumeIds', volume_id):
             raise
         ec2.attach_volume(VolumeId=volume_id, InstanceId=instance_id, Device=mount_point)
-        logger.info('Volume {} has been attached to {} as {}'.format(volume_id, instance_id, mount_point))
         return check_the_resource_state('volume_in_use', 'VolumeIds', volume_id)
     except Exception as e:
         logger.debug("Attach volume error: {0}" .format(str(e)))
@@ -165,7 +161,6 @@ def create_ebs_volume(tags, az, volume_type, volume_size, iops, encrypted, snap_
                                     'VolumeIds',
                                     volume_id):
             ec2.create_tags(Resources=[volume_id], Tags=tags)
-            logger.debug('Volume {} has been created'.format(volume_id))
             return volume_id
         else:
             logger.error("Timeout while waiting for the availability of the new volume")
@@ -351,7 +346,7 @@ def launch_ebs_affinity_process(instanceid, instance_infos, ebs_configs):
         else:
             logger.error("Error during the management of the EBS volume: {0}. Disk not attached to the instance: {1} " .format(ebs_configs['mount_point'], instanceid))
     else:
-        logger.debug("Can\'t start the EBS management process because a disk is already attached on the target mount point: {0}" .format(ebs_configs['mount_point']))
+        logger.error("Can\'t start the EBS management process because a disk is already attached on the target mount point: {0}" .format(ebs_configs['mount_point']))
 
 
 def lambda_handler(event, context):
@@ -359,7 +354,6 @@ def lambda_handler(event, context):
     parser = SafeConfigParser()
     parser.read('lambda_as_ebs.conf')
 
-    logger.debug('Config sections: {}'.format(parser.sections()))
     logger.debug("SNS message: {0}" .format(str(event['Records'][0]['Sns']['Message'])))
 
     snstype = json.loads(event['Records'][0]['Sns']['Message'])['Event'].lstrip().rstrip()
