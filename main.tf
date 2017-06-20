@@ -38,4 +38,5 @@ module "lambda" {
   time_limit      = "${var.general["time_limit"]}"
   encrypted       = "${var.encrypted}"
   aws_region      = "${var.aws_region}"
+  log_level       = "${var.lambda_log_level}"
 }
