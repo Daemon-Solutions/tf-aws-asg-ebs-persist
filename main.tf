@@ -33,7 +33,7 @@ module "lambda" {
   volume_type     = ["${var.block_type}"]
   volume_iops     = ["${var.block_iops}"]
   mount_point     = ["${var.mount_point}"]
-  tag_name        = "${var.general["tag_value"]}"
+  tag_name        = "${var.general["tag_name"]}"
   tag_value       = ["${var.tag_value}"]
   time_limit      = "${var.general["time_limit"]}"
   encrypted       = "${var.encrypted}"
