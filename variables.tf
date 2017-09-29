@@ -1,32 +1,37 @@
 variable "aws_region" {
   description = "AWS region to host your network"
+  type        = "string"
 }
 
-#General Informations
-variable "general" {
-  description = "General variables"
-  type        = "map"
-
-  default {
-    env         = "test2"
-    client_name = "mattboret"
-    account_id  = "77853448888"
-  }
+variable "env" {
+  description = "Environment name"
+  type        = "string"
 }
 
-#Stack general informations
-variable "stack_instances" {
-  description = "Autoscaling Stack Informations"
+variable "tag_name" {
+  description = "Tag Name to identify EBS volume"
+  type        = "string"
+}
 
-  default {
-    stack_name = "cluster-es"
+variable "time_limit" {
+  description = "The max age of a snapshot to use it"
+  default     = 300
+}
 
-    #Don't forget to update the version to update the Lambda code in AWS.
-    lambda_version = "v1.0.36"
-    lambda_timeout = "300"
+variable "stack_name" {
+  type = "string"
+}
 
-    autoscaling_name = "as-elasticsearch"
-  }
+variable "lambda_version" {
+  default = "v1.0.36"
+}
+
+variable "lambda_timeout" {
+  default = 300
+}
+
+variable "autoscaling_name" {
+  type = "string"
 }
 
 #Below the EBS configuration. Important! Always keep the same order for each section(example: sdf param and after sdf param)!
@@ -66,17 +71,6 @@ variable "block_iops" {
   }
 }
 
-variable "tag_name" {
-  description = "Tag Name to identify EBS volume"
-  type        = "map"
-
-  default {
-    #tag key:value to identify members of the stack.If your instances are already running with datas disks already attached. 
-    #Think to tag the EBS volumes with these.
-    sdp = "es_cluster_datas"
-  }
-}
-
 variable "tag_value" {
   description = "Tag Value to identify EBS volume"
 
@@ -84,19 +78,6 @@ variable "tag_value" {
     #tag key:value to identify members of the stack.If your instances are already running with dtas disks already attached. 
     #Think to tag the EBS volumes with these.
     sdp = "true"
-  }
-}
-
-variable "time_limit" {
-  description = "The max age of a snapshot to use it"
-  type        = "map"
-
-  default {
-    #Time limit define the max delta time, in minutes, of the snapshot creation. If the creation time is less than this limit,
-    #this snpashot will be used to create a new volume when the disk size has been increased. 
-    sdp = "30"
-
-    sdf = "20"
   }
 }
 
