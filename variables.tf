@@ -10,7 +10,7 @@ variable "envname" {
 
 variable "tag_name" {
   description = "Tag Name to identify EBS volume"
-  type        = "string"
+  default     = "tf-aws-asg-ebs-persist"
 }
 
 variable "time_limit" {
