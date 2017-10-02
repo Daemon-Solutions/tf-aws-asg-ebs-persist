@@ -1,6 +1,6 @@
 variable "aws_region" {}
 
-variable "env" {}
+variable "envname" {}
 
 variable "sns_topic" {}
 
@@ -11,8 +11,6 @@ variable "time_limit" {
 variable "stack_name" {}
 
 variable "lambda_role_arn" {}
-
-variable "lambda_version" {}
 
 variable "lambda_timeout" {}
 
@@ -43,5 +41,3 @@ variable "tag_value" {
 variable "encrypted" {
   type = "map"
 }
-
-variable "client_name" {}

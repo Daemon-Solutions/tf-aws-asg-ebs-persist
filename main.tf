@@ -5,37 +5,35 @@ provider "aws" {
 module "as_notification" {
   source           = "as_notification"
   sns_topic_arn    = "${module.sns.sns_topic_arn}"
-  autoscaling_name = "${var.stack_instances["autoscaling_name"]}"
+  autoscaling_name = "${var.autoscaling_name}"
 }
 
 module "sns" {
   source     = "sns"
-  env        = "${var.general["env"]}"
-  stack_name = "${var.stack_instances.["stack_name"]}"
+  env        = "${var.envname}"
+  stack_name = "${var.stack_name}"
 }
 
 module "iam" {
   source     = "iam"
-  env        = "${var.general["env"]}"
-  stack_name = "${var.stack_instances.["stack_name"]}"
+  env        = "${var.envname}"
+  stack_name = "${var.stack_name}"
 }
 
 module "lambda" {
   source          = "lambda"
-  client_name     = "${var.general["client_name"]}"
-  env             = "${var.general["env"]}"
+  env             = "${var.envname}"
   sns_topic       = "${module.sns.sns_topic_arn}"
-  stack_name      = "${var.stack_instances.["stack_name"]}"
+  stack_name      = "${var.stack_name}"
   lambda_role_arn = "${module.iam.iam_role_lambda_arn}"
-  lambda_version  = "${var.stack_instances.["lambda_version"]}"
-  lambda_timeout  = "${var.stack_instances.["lambda_timeout"]}"
+  lambda_timeout  = "${var.lambda_timeout}"
   volume_size     = ["${var.block_size}"]
   volume_type     = ["${var.block_type}"]
   volume_iops     = ["${var.block_iops}"]
   mount_point     = ["${var.mount_point}"]
-  tag_name        = "${var.general["tag_name"]}"
+  tag_name        = "${var.tag_name}"
   tag_value       = ["${var.tag_value}"]
-  time_limit      = "${var.general["time_limit"]}"
+  time_limit      = "${var.time_limit}"
   encrypted       = "${var.encrypted}"
   aws_region      = "${var.aws_region}"
 }

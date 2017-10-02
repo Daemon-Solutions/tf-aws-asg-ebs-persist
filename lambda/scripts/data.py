@@ -22,7 +22,6 @@ tag_name = arguments['tag_name']
 time_limit = arguments['time_limit']
 module_path = arguments['module_path']
 stack_name = arguments['stack_name']
-lambda_version = arguments['lambda_version']
 
 # manage directories
 stack_dir = os.path.join(module_path, 'files', stack_name)

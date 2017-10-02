@@ -5,9 +5,8 @@ data "external" "lambda_files" {
   program = ["python", "${path.module}/scripts/data.py"]
 
   query = {
-    module_path    = "${path.module}"
-    stack_name     = "${var.stack_name}"
-    lambda_version = "${var.lambda_version}"
+    module_path = "${path.module}"
+    stack_name  = "${var.stack_name}"
 
     # dicts
     mount_point = "${jsonencode(var.mount_point)}"
@@ -27,18 +26,21 @@ data "external" "lambda_files" {
 data "archive_file" "lambda_package" {
   type        = "zip"
   source_dir  = "${data.external.lambda_files.result.source_dir}"
-  output_path = "${path.cwd}/.terraform/tf-aws-asg-ebs-persist-${data.aws_caller_identity.current.account_id}-${var.env}-${var.stack_name}-${var.lambda_version}-management.zip"
+  output_path = "${path.cwd}/.terraform/tf-aws-asg-ebs-persist-${data.aws_caller_identity.current.account_id}-${var.envname}-${var.stack_name}-management.zip"
 }
 
+# Sends the SNS Topic a notification that the ASG has been created.
+# Works around dependency problem of SNS ASG notification cycle.
+# Also uses the Lambda package's hash as a trigger so that settings
+# changes will automatically trigger the same notification.
 resource "null_resource" "notifySNSTopic" {
   triggers {
-    lambda_version = "${var.lambda_version}"
+    source_code_hash = "${data.archive_file.lambda_package.output_base64sha256}"
   }
 
   depends_on = ["aws_sns_topic_subscription.lambda_subscription"]
 
   provisioner "local-exec" {
-    #Sends the  SNS Topic a notificiation that the ASG has been created. Works around dependency problem of SNS ASG notificiation cycle.
     command = "aws sns publish --region ${var.aws_region} --topic-arn ${var.sns_topic} --message \"{ \\\"Event\\\": \\\"autoscaling:TEST_NOTIFICATION\\\", \\\"AutoScalingGroupName\\\": \\\"${var.stack_name}\\\" }\""
   }
 }
