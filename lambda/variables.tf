@@ -12,8 +12,6 @@ variable "stack_name" {}
 
 variable "lambda_role_arn" {}
 
-variable "lambda_version" {}
-
 variable "lambda_timeout" {}
 
 variable "volume_size" {

@@ -22,10 +22,6 @@ variable "stack_name" {
   type = "string"
 }
 
-variable "lambda_version" {
-  default = "v1.0.36"
-}
-
 variable "lambda_timeout" {
   default = 300
 }

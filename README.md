@@ -30,7 +30,6 @@ module "kafka_ebs" {
   stack_name       = "${module.kafka5.asg_name}"
   autoscaling_name = "${module.kafka5.asg_name}"	#Set this to the ASG Name
   lambda_timeout   = "300"				#Max 5 minute timeout from  Lambda
-  lambda_version   = "1.0.0"				#Increment this if change any settings in module
 
   mount_point {				# Mount point on EC2 instance 
     "0" = "/dev/sdf" 

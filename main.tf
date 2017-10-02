@@ -26,7 +26,6 @@ module "lambda" {
   sns_topic       = "${module.sns.sns_topic_arn}"
   stack_name      = "${var.stack_name}"
   lambda_role_arn = "${module.iam.iam_role_lambda_arn}"
-  lambda_version  = "${var.lambda_version}"
   lambda_timeout  = "${var.lambda_timeout}"
   volume_size     = ["${var.block_size}"]
   volume_type     = ["${var.block_type}"]

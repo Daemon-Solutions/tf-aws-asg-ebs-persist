@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "new_lambda" {
-  filename         = "./.terraform/tf-aws-asg-ebs-persist-${data.aws_caller_identity.current.account_id}-${var.envname}-${var.stack_name}-${var.lambda_version}-management.zip"
+  filename         = "./.terraform/tf-aws-asg-ebs-persist-${data.aws_caller_identity.current.account_id}-${var.envname}-${var.stack_name}-management.zip"
   source_code_hash = "${data.archive_file.lambda_package.output_base64sha256}"
   function_name    = "lambda_as_ebs_${var.envname}_${var.stack_name}"
   role             = "${var.lambda_role_arn}"
