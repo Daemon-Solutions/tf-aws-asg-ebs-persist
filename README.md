@@ -23,7 +23,7 @@ module "kafka_ebs" {
   source = "../localmodules/tf-aws-asg-ebs-persist"
 
   aws_region = "eu-west-1"
-  env        = "${var.envname}"
+  envname    = "${var.envname}"
   tag_name   = "ebsattatch"
   time_limit = "300"
 

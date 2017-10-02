@@ -3,7 +3,7 @@ variable "aws_region" {
   type        = "string"
 }
 
-variable "env" {
+variable "envname" {
   description = "Environment name"
   type        = "string"
 }

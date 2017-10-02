@@ -27,7 +27,7 @@ data "external" "lambda_files" {
 data "archive_file" "lambda_package" {
   type        = "zip"
   source_dir  = "${data.external.lambda_files.result.source_dir}"
-  output_path = "${path.cwd}/.terraform/tf-aws-asg-ebs-persist-${data.aws_caller_identity.current.account_id}-${var.env}-${var.stack_name}-${var.lambda_version}-management.zip"
+  output_path = "${path.cwd}/.terraform/tf-aws-asg-ebs-persist-${data.aws_caller_identity.current.account_id}-${var.envname}-${var.stack_name}-${var.lambda_version}-management.zip"
 }
 
 resource "null_resource" "notifySNSTopic" {

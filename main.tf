@@ -10,19 +10,19 @@ module "as_notification" {
 
 module "sns" {
   source     = "sns"
-  env        = "${var.env}"
+  env        = "${var.envname}"
   stack_name = "${var.stack_name}"
 }
 
 module "iam" {
   source     = "iam"
-  env        = "${var.env}"
+  env        = "${var.envname}"
   stack_name = "${var.stack_name}"
 }
 
 module "lambda" {
   source          = "lambda"
-  env             = "${var.env}"
+  env             = "${var.envname}"
   sns_topic       = "${module.sns.sns_topic_arn}"
   stack_name      = "${var.stack_name}"
   lambda_role_arn = "${module.iam.iam_role_lambda_arn}"
