@@ -24,12 +24,7 @@ module "kafka_ebs" {
 
   aws_region = "eu-west-1"
   envname    = "${var.envname}"
-  tag_name   = "ebsattatch"
-  time_limit = "300"
-
-  stack_name       = "${module.kafka5.asg_name}"
-  autoscaling_name = "${module.kafka5.asg_name}"	#Set this to the ASG Name
-  lambda_timeout   = "300"				#Max 5 minute timeout from  Lambda
+  asg_name   = "${module.kafka5.asg_name}"
 
   mount_point {				# Mount point on EC2 instance 
     "0" = "/dev/sdf" 

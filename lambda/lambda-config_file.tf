@@ -41,6 +41,6 @@ resource "null_resource" "notifySNSTopic" {
   depends_on = ["aws_sns_topic_subscription.lambda_subscription"]
 
   provisioner "local-exec" {
-    command = "aws sns publish --region ${var.aws_region} --topic-arn ${var.sns_topic} --message \"{ \\\"Event\\\": \\\"autoscaling:TEST_NOTIFICATION\\\", \\\"AutoScalingGroupName\\\": \\\"${var.stack_name}\\\" }\""
+    command = "aws sns publish --region ${var.aws_region} --topic-arn ${var.sns_topic} --message \"{ \\\"Event\\\": \\\"autoscaling:TEST_NOTIFICATION\\\", \\\"AutoScalingGroupName\\\": \\\"${var.asg_name}\\\" }\""
   }
 }

@@ -2,29 +2,34 @@ provider "aws" {
   region = "${var.aws_region}"
 }
 
+resource "random_id" "suffix" {
+  byte_length = 8
+}
+
 module "as_notification" {
   source           = "as_notification"
   sns_topic_arn    = "${module.sns.sns_topic_arn}"
-  autoscaling_name = "${var.autoscaling_name}"
+  autoscaling_name = "${var.asg_name}"
 }
 
 module "sns" {
   source     = "sns"
   envname    = "${var.envname}"
-  stack_name = "${var.stack_name}"
+  stack_name = "${var.asg_name}-${random_id.suffix.hex}"
 }
 
 module "iam" {
   source     = "iam"
   envname    = "${var.envname}"
-  stack_name = "${var.stack_name}"
+  stack_name = "${var.asg_name}-${random_id.suffix.hex}"
 }
 
 module "lambda" {
   source          = "lambda"
   envname         = "${var.envname}"
   sns_topic       = "${module.sns.sns_topic_arn}"
-  stack_name      = "${var.stack_name}"
+  asg_name        = "${var.asg_name}"
+  stack_name      = "${var.asg_name}-${random_id.suffix.hex}"
   lambda_role_arn = "${module.iam.iam_role_lambda_arn}"
   lambda_timeout  = "${var.lambda_timeout}"
   volume_size     = ["${var.block_size}"]

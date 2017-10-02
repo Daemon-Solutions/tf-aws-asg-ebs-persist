@@ -8,6 +8,8 @@ variable "time_limit" {
   type = "string"
 }
 
+variable "asg_name" {}
+
 variable "stack_name" {}
 
 variable "lambda_role_arn" {}

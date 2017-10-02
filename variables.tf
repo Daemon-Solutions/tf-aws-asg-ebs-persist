@@ -18,15 +18,11 @@ variable "time_limit" {
   default     = 300
 }
 
-variable "stack_name" {
-  type = "string"
-}
-
 variable "lambda_timeout" {
   default = 300
 }
 
-variable "autoscaling_name" {
+variable "asg_name" {
   type = "string"
 }
 
