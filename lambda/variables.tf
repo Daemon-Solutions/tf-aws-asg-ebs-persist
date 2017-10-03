@@ -1,14 +1,12 @@
 variable "aws_region" {}
 
-variable "envname" {}
-
 variable "sns_topic" {}
 
 variable "time_limit" {
   type = "string"
 }
 
-variable "stack_name" {}
+variable "asg_name" {}
 
 variable "lambda_role_arn" {}
 

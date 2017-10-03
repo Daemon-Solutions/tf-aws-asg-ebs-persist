@@ -1,3 +1,1 @@
-variable "envname" {}
-
-variable "stack_name" {}
+variable "asg_name" {}

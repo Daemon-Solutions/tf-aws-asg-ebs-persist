@@ -3,14 +3,9 @@ variable "aws_region" {
   type        = "string"
 }
 
-variable "envname" {
-  description = "Environment name"
-  type        = "string"
-}
-
 variable "tag_name" {
   description = "Tag Name to identify EBS volume"
-  type        = "string"
+  default     = "tf-aws-asg-ebs-persist"
 }
 
 variable "time_limit" {
@@ -18,15 +13,11 @@ variable "time_limit" {
   default     = 300
 }
 
-variable "stack_name" {
-  type = "string"
-}
-
 variable "lambda_timeout" {
   default = 300
 }
 
-variable "autoscaling_name" {
+variable "asg_name" {
   type = "string"
 }
 

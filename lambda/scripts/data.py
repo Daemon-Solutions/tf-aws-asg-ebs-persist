@@ -21,17 +21,18 @@ encrypted = json.loads(arguments['encrypted'])
 tag_name = arguments['tag_name']
 time_limit = arguments['time_limit']
 module_path = arguments['module_path']
-stack_name = arguments['stack_name']
+asg_name = arguments['asg_name']
+aws_acccount_id = arguments['aws_acccount_id']
 
 # manage directories
-stack_dir = os.path.join(module_path, 'files', stack_name)
-if os.path.exists(stack_dir):
-    shutil.rmtree(stack_dir)
-os.mkdir(stack_dir)
+asg_dir = os.path.join(module_path, 'files', aws_acccount_id + '-' + asg_name)
+if os.path.exists(asg_dir):
+    shutil.rmtree(asg_dir)
+os.mkdir(asg_dir)
 
 # copy main script
 shutil.copyfile(os.path.join(module_path, 'scripts', 'main.py'),
-                os.path.join(stack_dir, 'main.py'))
+                os.path.join(asg_dir, 'main.py'))
 
 # generate config file
 config = ConfigParser.ConfigParser()
@@ -47,8 +48,8 @@ for key in mount_point.keys():
     config.set(section, 'tag_value', tag_value[key])
     config.set(section, 'encrypted', encrypted[key])
 
-with open(os.path.join(stack_dir, 'lambda_as_ebs.conf'), 'w') as cfgfile:
+with open(os.path.join(asg_dir, 'lambda_as_ebs.conf'), 'w') as cfgfile:
     config.write(cfgfile)
 
 # return json
-json.dump({"source_dir": stack_dir}, sys.stdout)
+json.dump({"source_dir": asg_dir}, sys.stdout)
