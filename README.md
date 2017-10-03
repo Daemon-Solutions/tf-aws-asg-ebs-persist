@@ -23,7 +23,6 @@ module "kafka_ebs" {
   source = "../localmodules/tf-aws-asg-ebs-persist"
 
   aws_region = "eu-west-1"
-  envname    = "${var.envname}"
   asg_name   = "${module.kafka5.asg_name}"
 
   mount_point {				# Mount point on EC2 instance 

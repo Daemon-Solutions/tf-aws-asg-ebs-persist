@@ -3,11 +3,6 @@ variable "aws_region" {
   type        = "string"
 }
 
-variable "envname" {
-  description = "Environment name"
-  type        = "string"
-}
-
 variable "tag_name" {
   description = "Tag Name to identify EBS volume"
   default     = "tf-aws-asg-ebs-persist"

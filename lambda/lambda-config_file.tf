@@ -5,8 +5,9 @@ data "external" "lambda_files" {
   program = ["python", "${path.module}/scripts/data.py"]
 
   query = {
-    module_path = "${path.module}"
-    stack_name  = "${var.stack_name}"
+    module_path     = "${path.module}"
+    aws_acccount_id = "${data.aws_caller_identity.current.account_id}"
+    asg_name        = "${var.asg_name}"
 
     # dicts
     mount_point = "${jsonencode(var.mount_point)}"
@@ -26,7 +27,7 @@ data "external" "lambda_files" {
 data "archive_file" "lambda_package" {
   type        = "zip"
   source_dir  = "${data.external.lambda_files.result.source_dir}"
-  output_path = "${path.cwd}/.terraform/tf-aws-asg-ebs-persist-${data.aws_caller_identity.current.account_id}-${var.envname}-${var.stack_name}-management.zip"
+  output_path = "${path.cwd}/.terraform/tf-aws-asg-ebs-persist-${data.aws_caller_identity.current.account_id}-${var.asg_name}.zip"
 }
 
 # Sends the SNS Topic a notification that the ASG has been created.
