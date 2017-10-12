@@ -26,7 +26,7 @@ data "external" "lambda_files" {
 ## create lambda package
 data "archive_file" "lambda_package" {
   type        = "zip"
-  source_dir  = "${data.external.lambda_files.result["source_dir"]}"
+  source_dir  = "${lookup(data.external.lambda_files.result, "source_dir")}"
   output_path = "${path.cwd}/.terraform/tf-aws-asg-ebs-persist-${data.aws_caller_identity.current.account_id}-${var.asg_name}.zip"
 }
 
