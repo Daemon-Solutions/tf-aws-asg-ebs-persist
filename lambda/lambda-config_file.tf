@@ -27,7 +27,7 @@ data "external" "lambda_files" {
 data "archive_file" "lambda_package" {
   type        = "zip"
   source_dir  = "${lookup(data.external.lambda_files.result, "source_dir")}"
-  output_path = "${path.cwd}/.terraform/tf-aws-asg-ebs-persist-${data.aws_caller_identity.current.account_id}-${var.asg_name}.zip"
+  output_path = "./.terraform/tf-aws-asg-ebs-persist-${data.aws_caller_identity.current.account_id}-${var.asg_name}.zip"
 }
 
 # Sends the SNS Topic a notification that the ASG has been created.
