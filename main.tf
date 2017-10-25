@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "${var.aws_region}"
-}
-
 module "as_notification" {
   source           = "as_notification"
   sns_topic_arn    = "${module.sns.sns_topic_arn}"
