@@ -1,29 +1,17 @@
-"""
-    Lambda function to manage the EBS datas disk affinity for a new
-    instance(defined by the instance id in the SNS notification).
-    This function is aimed to be called by an SNS notification
-    Features:
-        * check if an EBS is available for this new instance. (An EBS available
-            is an EBS located in the same AZ than the new instance and with the
-            same tag than the instance).
-        * if an EBS is available, attach it to the instance.
-        * create and tag a new EBS and attach it to the new instance.
-        * resize or change the EBS type if needed(depends of the config file).
-        * If a resize is made the previous EBS volume is taggued like this:
-            "To Delete": "True"
-        * Support one or more EBS.
-"""
 #!/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-from ConfigParser import SafeConfigParser
+
 import boto3
+import botocore
 import datetime
 import dateutil
-import botocore
 import json
 import logging
+
+from ConfigParser import SafeConfigParser
+
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -92,7 +80,7 @@ def attach_ebs_volume(volume_id, instance_id, mount_point='/dev/sdp'):
         ec2.attach_volume(VolumeId=volume_id, InstanceId=instance_id, Device=mount_point)
         return check_the_resource_state('volume_in_use', 'VolumeIds', volume_id)
     except Exception as e:
-        logger.debug("Attach volume error: {0}" .format(str(e)))
+        logger.error("Attach volume error: {0}" .format(str(e)))
     return False
 
 
@@ -205,13 +193,13 @@ def create_snapshot_if_not_exist(volume_id, tags, time_limit):
     try:
         snap = check_snapshot_exist(volume_id, time_limit)
         if snap:
-            logger.debug("An existing snapshot was found: {0}" .format(snap))
+            logger.info("An existing snapshot was found: {0}" .format(snap))
             return snap
-        logger.debug("Launch of the snapshot creation process")
+        logger.info("Launch of the snapshot creation process")
         snapshot_id = ec2.create_snapshot(VolumeId=volume_id,
                                           Description='Snapshot create to scale the volume: {0}' .format(volume_id))['SnapshotId']
         ec2.create_tags(Resources=[snapshot_id], Tags=tags)
-        logger.debug("Waiting until the snapshot become available")
+        logger.info("Waiting until the snapshot become available")
         if not check_the_resource_state('snapshot_completed',
                                         'SnapshotIds',
                                         snapshot_id):
@@ -275,7 +263,7 @@ def manage_ebs_volume(config, instanceid, instance_infos):
             logger.error("Can\'t create snapshot")
             return False
     else:
-        logger.debug("No volume available. Launch the creation process")
+        logger.info("No volume available. Launch the creation process")
         ebs_id = create_ebs_volume(config['tags'],
                                    instance_infos['az'],
                                    config['volume_type'],
@@ -342,26 +330,34 @@ def launch_ebs_affinity_process(instanceid, instance_infos, ebs_configs):
                                          ebs_configs['mount_point'],
                                          instance_infos):
         if manage_ebs_volume(ebs_configs, instanceid, instance_infos):
-            logger.debug("EBS: {0} has been attached on the Instance-id: {1}" .format(ebs_configs['mount_point'], instanceid))
+            logger.info("EBS: {0} has been attached on the Instance-id: {1}" .format(ebs_configs['mount_point'], instanceid))
         else:
             logger.error("Error during the management of the EBS volume: {0}. Disk not attached to the instance: {1} " .format(ebs_configs['mount_point'], instanceid))
     else:
-        logger.error("Can\'t start the EBS management process because a disk is already attached on the target mount point: {0}" .format(ebs_configs['mount_point']))
+        logger.info("A disk is already attached on the target mount point: {0}" .format(ebs_configs['mount_point']))
 
 
 def lambda_handler(event, context):
     """ Main function """
+    logger.info('Received event: {}'.format(event))
+
     parser = SafeConfigParser()
     parser.read('lambda_as_ebs.conf')
 
-    logger.debug("SNS message: {0}" .format(str(event['Records'][0]['Sns']['Message'])))
+    if 'Records' in event:
+        # SNS Message.
+        sns_message = json.loads(event['Records'][0]['Sns']['Message'])
+        event_type = sns_message['Event']
+        asgname = sns_message['AutoScalingGroupName']
+        instanceid = sns_message.get('EC2InstanceId')
+    else:
+        # CloudWatch Event.
+        event_type = event['detail']['LifecycleTransition']
+        asgname = event['detail']['AutoScalingGroupName']
+        instanceid = event['detail']['EC2InstanceId']
 
-    snstype = json.loads(event['Records'][0]['Sns']['Message'])['Event'].lstrip().rstrip()
-    asgname = json.loads(event['Records'][0]['Sns']['Message'])['AutoScalingGroupName'].lstrip().rstrip()
-    logger.info("New Message for: " + str(asgname))
-
-    if snstype in ['autoscaling:TEST_NOTIFICATION']:
-        logger.info("New Asg Created: " + str(asgname))
+    if event_type == 'autoscaling:TEST_NOTIFICATION':
+        logger.info('{} for {}'.format(event_type, asgname))
         asginstances = asg.describe_auto_scaling_groups(AutoScalingGroupNames=[asgname])
         logger.info(asginstances)
         for i in asginstances["AutoScalingGroups"][0]["Instances"]:
@@ -376,8 +372,7 @@ def lambda_handler(event, context):
                 else:
                     logger.error("Can\'t retrieve informations about the instance: " + str(instanceid))    
     else:
-        instanceid = json.loads(event['Records'][0]['Sns']['Message'])['EC2InstanceId'].lstrip().rstrip()
-        logger.info("New Instance-id: " + str(instanceid))
+        logger.info('{} for {} {}'.format(event_type, asgname, instanceid))
         instance_infos = retrieve_instance_infos(instanceid)
         if instance_infos:
             for section in parser.sections():
