@@ -34,3 +34,10 @@ module "lambda" {
   encrypted       = "${var.encrypted}"
   aws_region      = "${var.aws_region}"
 }
+
+module "cw_event" {
+  source        = "cw_event"
+  asg_name      = "${var.asg_name}"
+  function_arn  = "${module.lambda.arn}"
+  function_name = "${module.lambda.name}"
+}
