@@ -36,6 +36,10 @@ variable "tag_value" {
   type = "map"
 }
 
+variable "extra_tags" {
+  type = "map"
+}
+
 variable "encrypted" {
   type = "map"
 }

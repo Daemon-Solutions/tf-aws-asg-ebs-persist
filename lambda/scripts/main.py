@@ -40,7 +40,7 @@ def retrieve_instance_infos(instanceid):
     except botocore.exceptions.ClientError as e:
         logger.error("Instance: {0} not found! Exception: {1}" .format(instanceid, str(e.message)))
     except Exception as e:
-        logger.error("Can\'t execute search instance operation. Instance informations: {0}. Exception: {1}" .format(str(instance),str(e)))
+        logger.error("Can\'t execute search instance operation. Instance informations: {0}. Exception: {1}" .format(str(instance), str(e)))
     return {}
 
 
@@ -84,7 +84,7 @@ def attach_ebs_volume(volume_id, instance_id, mount_point='/dev/sdp'):
     return False
 
 
-def check_the_resource_state(wait_type, resource_name, resource_id,  max_retry=120):
+def check_the_resource_state(wait_type, resource_name, resource_id, max_retry=120):
     """ Return True only if the resource is ready(no operation in progress).
 
         To list all available waiters: ec2.waiter_names
@@ -306,6 +306,15 @@ def load_configuration_params(parser, section_name):
                "Values": [parser.get(section_name, 'tag_value')]}
     tags = [{'Key': parser.get(section_name, 'tag_name'),
              'Value': parser.get(section_name, 'tag_value')}]
+
+    extra_tags_string = parser.get(section_name, 'extra_tags')
+    extra_tags = json.loads(extra_tags_string)
+    for tag_name, tag_value in extra_tags.items():
+        tags.append({
+            'Key': tag_name,
+            'Value': tag_value
+        })
+
     encrypted = parser.get(section_name, 'encrypted').lower() in ['true', '1']
     params = {'volume_size': int(parser.get(section_name, 'volume_size')),
               'volume_type': parser.get(section_name, 'volume_type'),
@@ -370,7 +379,7 @@ def lambda_handler(event, context):
                         logger.info("Launch EBS affinity: " + str(instanceid) + str(instance_infos) + str(configs))
                         launch_ebs_affinity_process(instanceid, instance_infos, configs)
                 else:
-                    logger.error("Can\'t retrieve informations about the instance: " + str(instanceid))    
+                    logger.error("Can\'t retrieve informations about the instance: " + str(instanceid))
     else:
         logger.info('{} for {} {}'.format(event_type, asgname, instanceid))
         instance_infos = retrieve_instance_infos(instanceid)

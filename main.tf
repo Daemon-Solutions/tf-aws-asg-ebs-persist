@@ -30,6 +30,7 @@ module "lambda" {
   mount_point     = "${var.mount_point}"
   tag_name        = "${var.tag_name}"
   tag_value       = "${var.tag_value}"
+  extra_tags      = "${var.extra_tags}"
   time_limit      = "${var.time_limit}"
   encrypted       = "${var.encrypted}"
   aws_region      = "${var.aws_region}"

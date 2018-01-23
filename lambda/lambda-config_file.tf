@@ -15,6 +15,7 @@ data "external" "lambda_files" {
     volume_type = "${jsonencode(var.volume_type)}"
     volume_iops = "${jsonencode(var.volume_iops)}"
     tag_value   = "${jsonencode(var.tag_value)}"
+    extra_tags  = "${jsonencode(var.extra_tags)}"
     encrypted   = "${jsonencode(var.encrypted)}"
 
     #string
