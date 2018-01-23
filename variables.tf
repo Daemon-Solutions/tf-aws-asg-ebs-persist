@@ -62,10 +62,17 @@ variable "tag_value" {
   description = "Tag Value to identify EBS volume"
 
   default {
-    #tag key:value to identify members of the stack.If your instances are already running with dtas disks already attached. 
+    #tag key:value to identify members of the stack.If your instances are already running with dtas disks already attached.
     #Think to tag the EBS volumes with these.
     sdp = "true"
   }
+}
+
+variable "extra_tags" {
+  description = "Additional EBS tags"
+  type        = "map"
+
+  default {}
 }
 
 variable "encrypted" {

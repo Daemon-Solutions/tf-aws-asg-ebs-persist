@@ -15,6 +15,7 @@ volume_size = json.loads(arguments['volume_size'])
 volume_type = json.loads(arguments['volume_type'])
 volume_iops = json.loads(arguments['volume_iops'])
 tag_value = json.loads(arguments['tag_value'])
+extra_tags = json.loads(arguments['extra_tags'])
 encrypted = json.loads(arguments['encrypted'])
 
 # strings
@@ -47,6 +48,14 @@ for key in mount_point.keys():
     config.set(section, 'tag_name', tag_name)
     config.set(section, 'tag_value', tag_value[key])
     config.set(section, 'encrypted', encrypted[key])
+
+    tags = {}
+    for extra_tag_name, extra_tag_value in extra_tags.items():
+        if extra_tag_name.startswith(key + '.'):
+            tags[extra_tag_name.split('.', 1)[1]] = extra_tag_value
+    # ConfigParser doesn't support nested dictionaries, so we serialize tags in JSON
+    config.set(section, 'extra_tags', json.dumps(tags))
+
 
 with open(os.path.join(asg_dir, 'lambda_as_ebs.conf'), 'w') as cfgfile:
     config.write(cfgfile)
