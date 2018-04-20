@@ -34,9 +34,12 @@ def retrieve_instance_infos(instanceid):
     try:
         instance = ec2.describe_instances(InstanceIds=[instanceid])
         disks = [v['DeviceName'] for v in instance['Reservations'][0]['Instances'][0]['BlockDeviceMappings']]
-        return {"az": instance['Reservations'][0]['Instances'][0]['Placement']['AvailabilityZone'], "disks_attach": disks,
-                "vpc_id": instance['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['VpcId'],
-                "private_ip": instance['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['PrivateIpAddress']}
+        return {
+            "az": instance['Reservations'][0]['Instances'][0]['Placement']['AvailabilityZone'],
+            "disks_attach": disks,
+            "vpc_id": instance['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['VpcId'],
+            "private_ip": instance['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['PrivateIpAddress']
+        }
     except botocore.exceptions.ClientError as e:
         logger.error("Instance: {0} not found! Exception: {1}" .format(instanceid, str(e.message)))
     except Exception as e:
@@ -74,13 +77,14 @@ def attach_ebs_volume(volume_id, instance_id, mount_point='/dev/sdp'):
         :param  instance_id  string: The instance id
         :return Bool True if the operation succeed
     """
-    try:
-        if not check_the_resource_state('volume_available', 'VolumeIds', volume_id):
-            raise
-        ec2.attach_volume(VolumeId=volume_id, InstanceId=instance_id, Device=mount_point)
-        return check_the_resource_state('volume_in_use', 'VolumeIds', volume_id)
-    except Exception as e:
-        logger.error("Attach volume error: {0}" .format(str(e)))
+    instance_running = check_the_resource_state('instance_running', 'InstanceIds', instance_id)
+    vol_available = check_the_resource_state('volume_available', 'VolumeIds', volume_id)
+    if instance_running and vol_available:
+        try:
+            ec2.attach_volume(VolumeId=volume_id, InstanceId=instance_id, Device=mount_point)
+            return check_the_resource_state('volume_in_use', 'VolumeIds', volume_id)
+        except Exception as e:
+            logger.error("Attach volume error: {0}" .format(str(e)))
     return False
 
 
@@ -99,9 +103,13 @@ def check_the_resource_state(wait_type, resource_name, resource_id, max_retry=12
     waiter = ec2.get_waiter(wait_type)
     waiter.config.delay = 1
     waiter.config.max_attempts = max_retry
-    if not waiter.wait(**{resource_name: [resource_id]}):
-        return True
-    return False
+    try:
+        waiter.wait(**{resource_name: [resource_id]})
+        logger.info('Resource {} is ready'.format(resource_id))
+    except botocore.exceptions.WaiterError as error:
+        logger.error('Checking state of {} failed: [{}]'.format(resource_id, error))
+        return False
+    return True
 
 
 def create_ebs_volume(tags, az, volume_type, volume_size, iops, encrypted, snap_id=None):
@@ -229,10 +237,10 @@ def manage_ebs_volume(config, instanceid, instance_infos):
         :return Bool
     """
     ebs_infos = find_ebs_volume(config['filters'], instance_infos['az'])
-    if ebs_infos and int(ebs_infos['size']) == int(config['volume_size']) \
-                 and ebs_infos['type'] == config['volume_type'] \
-                 and int(ebs_infos['iops']) == int(config['volume_iops']) \
-                 and ebs_infos['encrypted'] == config['encrypted']:
+    if (ebs_infos and int(ebs_infos['size']) == int(config['volume_size']) and
+            ebs_infos['type'] == config['volume_type'] and
+            int(ebs_infos['iops']) == int(config['volume_iops']) and
+            ebs_infos['encrypted'] == config['encrypted']):
         ebs_id = ebs_infos['id']
     elif ebs_infos:
         new_vol_infos = {
@@ -342,8 +350,11 @@ def launch_ebs_affinity_process(instanceid, instance_infos, ebs_configs):
             logger.info("EBS: {0} has been attached on the Instance-id: {1}" .format(ebs_configs['mount_point'], instanceid))
         else:
             logger.error("Error during the management of the EBS volume: {0}. Disk not attached to the instance: {1} " .format(ebs_configs['mount_point'], instanceid))
+            return False
+        return True
     else:
         logger.info("A disk is already attached on the target mount point: {0}" .format(ebs_configs['mount_point']))
+    return True
 
 
 def lambda_handler(event, context):
@@ -352,6 +363,7 @@ def lambda_handler(event, context):
 
     parser = SafeConfigParser()
     parser.read('lambda_as_ebs.conf')
+    result = False
 
     if 'Records' in event:
         # SNS Message.
@@ -377,7 +389,7 @@ def lambda_handler(event, context):
                     for section in parser.sections():
                         configs = load_configuration_params(parser, section)
                         logger.info("Launch EBS affinity: " + str(instanceid) + str(instance_infos) + str(configs))
-                        launch_ebs_affinity_process(instanceid, instance_infos, configs)
+                        result = launch_ebs_affinity_process(instanceid, instance_infos, configs)
                 else:
                     logger.error("Can\'t retrieve informations about the instance: " + str(instanceid))
     else:
@@ -387,6 +399,10 @@ def lambda_handler(event, context):
             for section in parser.sections():
                 configs = load_configuration_params(parser, section)
                 logger.info("Launch EBS affinity: " + str(instanceid) + str(instance_infos) + str(configs))
-                launch_ebs_affinity_process(instanceid, instance_infos, configs)
+                result = launch_ebs_affinity_process(instanceid, instance_infos, configs)
         else:
             logger.error("Can\'t retrieve informations about the instance: " + str(instanceid))
+
+    # fail it it went wrong
+    if not result:
+        raise Exception('Failed to attach volume')
