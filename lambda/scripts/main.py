@@ -392,7 +392,7 @@ def lambda_handler(event, context):
                         result = launch_ebs_affinity_process(instanceid, instance_infos, configs)
                 else:
                     logger.error("Can\'t retrieve informations about the instance: " + str(instanceid))
-    else:
+    elif event_type == 'autoscaling:EC2_INSTANCE_LAUNCH':
         logger.info('{} for {} {}'.format(event_type, asgname, instanceid))
         instance_infos = retrieve_instance_infos(instanceid)
         if instance_infos:
@@ -402,7 +402,8 @@ def lambda_handler(event, context):
                 result = launch_ebs_affinity_process(instanceid, instance_infos, configs)
         else:
             logger.error("Can\'t retrieve informations about the instance: " + str(instanceid))
-
+    elif event_type == 'autoscaling:EC2_INSTANCE_LAUNCHING':
+        logger.info("Received event autoscaling:EC2_INSTANCE_LAUNCHING for " + str(instanceid) + ". Skipping...")
     # fail it it went wrong
-    if not result:
+    if not result and event_type != 'autoscaling:EC2_INSTANCE_LAUNCHING':
         raise Exception('Failed to attach volume')
