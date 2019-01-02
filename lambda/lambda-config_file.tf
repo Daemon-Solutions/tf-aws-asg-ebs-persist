@@ -1,3 +1,7 @@
+provider "aws" {
+  region = "eu-west-1"
+}
+
 # get current account id
 data "aws_caller_identity" "current" {}
 

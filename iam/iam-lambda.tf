@@ -1,3 +1,7 @@
+provider "aws" {
+  region = "eu-west-1"
+}
+
 resource "aws_iam_role" "lambda_iam" {
   name               = "${var.asg_name}-ebs-persist"
   assume_role_policy = "${file("${path.module}/assume_role_policy_lambda.json")}"

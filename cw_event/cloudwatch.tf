@@ -12,6 +12,10 @@
 # 8. SNS invokes Lambda function
 # 9. Lambda function sees that EBS volume is already attached to instance
 
+provider "aws" {
+  region = "eu-west-1"
+}
+
 resource "aws_cloudwatch_event_rule" "events" {
   name = "${var.asg_name}-${var.suffix}"
 
