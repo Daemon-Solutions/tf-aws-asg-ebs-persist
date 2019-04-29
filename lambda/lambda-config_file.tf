@@ -2,7 +2,7 @@
 data "aws_caller_identity" "current" {}
 
 data "external" "lambda_files" {
-  program = ["python2", "${path.module}/scripts/data.py"]
+  program = ["python", "${path.module}/scripts/data.py"]
 
   query = {
     module_path     = "${path.module}"
