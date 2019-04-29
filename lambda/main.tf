@@ -5,7 +5,7 @@ resource "aws_lambda_function" "new_lambda" {
   role             = "${var.lambda_role_arn}"
   handler          = "main.lambda_handler"
   description      = "Lambda function to manage the EBS affinity for the ASG ${var.asg_name}"
-  runtime          = "python2.7"
+  runtime          = "python3.7"
   timeout          = "${var.lambda_timeout}"
   depends_on       = ["data.archive_file.lambda_package"]
 }
