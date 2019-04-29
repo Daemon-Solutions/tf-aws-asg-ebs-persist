@@ -4,7 +4,7 @@ import json
 import os
 import sys
 import shutil
-import ConfigParser
+import configparser
 
 # read json
 arguments = json.load(sys.stdin)
@@ -36,7 +36,7 @@ shutil.copyfile(os.path.join(module_path, 'scripts', 'main.py'),
                 os.path.join(asg_dir, 'main.py'))
 
 # generate config file
-config = ConfigParser.ConfigParser()
+config = configparser.ConfigParser()
 for key in mount_point.keys():
     section = mount_point[key]
     config.add_section(section)
