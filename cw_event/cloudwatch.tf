@@ -37,14 +37,14 @@ PATTERN
 
 resource "aws_cloudwatch_event_target" "events" {
   target_id = "${var.asg_name}-${var.suffix}-events"
-  rule      = "${aws_cloudwatch_event_rule.events.name}"
-  arn       = "${var.function_arn}"
+  rule      = aws_cloudwatch_event_rule.events.name
+  arn       = var.function_arn
 }
 
 resource "aws_lambda_permission" "events" {
   statement_id  = "${var.asg_name}-${var.suffix}-events"
   action        = "lambda:InvokeFunction"
-  function_name = "${var.function_name}"
+  function_name = var.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = "${aws_cloudwatch_event_rule.events.arn}"
+  source_arn    = aws_cloudwatch_event_rule.events.arn
 }

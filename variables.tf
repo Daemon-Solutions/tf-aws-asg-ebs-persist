@@ -1,6 +1,6 @@
 variable "aws_region" {
   description = "AWS region to host your network"
-  type        = "string"
+  type        = string
 }
 
 variable "tag_name" {
@@ -18,14 +18,14 @@ variable "lambda_timeout" {
 }
 
 variable "asg_name" {
-  type = "string"
+  type = string
 }
 
 #Below the EBS configuration. Important! Always keep the same order for each section(example: sdf param and after sdf param)!
 variable "mount_point" {
   description = "EBS mount point for each disk"
 
-  default {
+  default = {
     sdp = "/dev/sdp"
   }
 }
@@ -33,7 +33,7 @@ variable "mount_point" {
 variable "block_type" {
   description = "EBS type for each disk"
 
-  default {
+  default = {
     #Type of storage. Valid values are 'standard'|'io1'|'gp2'|'sc1'|'st1'
     sdp = "gp2"
   }
@@ -42,7 +42,7 @@ variable "block_type" {
 variable "block_size" {
   description = "EBS size for each disk"
 
-  default {
+  default = {
     #The size of the new EBS volume in GB.
     sdp = "70"
   }
@@ -51,7 +51,7 @@ variable "block_size" {
 variable "block_iops" {
   description = "EBS iops for each disk"
 
-  default {
+  default = {
     #Iops are only available with Provisioned IOPS(io1). Set the number of Iops/second with a maximum of 30 IOPS/GB.
     #The 0 value indicate that IOPS are not customizable for this EBS type.
     sdp = "0"
@@ -61,7 +61,7 @@ variable "block_iops" {
 variable "tag_value" {
   description = "Tag Value to identify EBS volume"
 
-  default {
+  default = {
     #tag key:value to identify members of the stack.If your instances are already running with dtas disks already attached.
     #Think to tag the EBS volumes with these.
     sdp = "true"
@@ -70,16 +70,16 @@ variable "tag_value" {
 
 variable "extra_tags" {
   description = "Additional EBS tags"
-  type        = "map"
+  type        = map
 
-  default {}
+  default = {}
 }
 
 variable "encrypted" {
   description = "Enable encryption for EBS volume"
-  type        = "map"
+  type        = map
 
-  default {
+  default = {
     sdp = "False"
   }
 }

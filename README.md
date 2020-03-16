@@ -2,6 +2,12 @@
 
 Module to provide EBS volume persistence for ASG based instances.
 
+## Terraform version compatibility
+| Module version | Terraform version |
+|---|---|
+| 3.x.x | 0.12.x |
+| 2.x.x | 0.11.x |
+
 ## Description
 
 This module creates an EBS affinity for instances which are members of the same Autoscaling Group. The goal is to attach an EBS volume to a new instance, reusing or creating new volumes as necessary. It also provides a way to resize (increase only) or change the type of EBS volume.
