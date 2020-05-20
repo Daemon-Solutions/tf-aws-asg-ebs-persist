@@ -1,1 +1,3 @@
-variable "asg_name" {}
+variable "asg_name" {
+  type = string
+}

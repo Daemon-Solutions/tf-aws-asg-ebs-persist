@@ -16,6 +16,13 @@ This is based on a module by Morea.
   * Hint: manually snapshot the existing volumes beforehand because we are limited to 5 mins for a lambda operation
 * Will create volumes for a newly created ASG
 
+## Terraform Version Compatibility
+
+Module Version|Terraform Version
+---|---
+v3.0.0|0.12.x
+v2.0.1|0.11.x
+
 ## Example
 
 ```

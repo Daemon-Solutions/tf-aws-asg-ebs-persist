@@ -1,3 +1,7 @@
-variable "autoscaling_name" {}
+variable "autoscaling_name" {
+  type = string
+}
 
-variable "sns_topic_arn" {}
+variable "sns_topic_arn" {
+  type = string
+}
