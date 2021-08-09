@@ -8,6 +8,13 @@ This module creates an EBS affinity for instances which are members of the same 
 
 This is based on a module by Morea.
 
+## Terraform version compatibility
+
+| Module version    | Terraform version |
+|-------------------|-------------------|
+| 3.x.x             | 0.12.x            |
+| 2.x.x and earlier | 0.11.x            |
+
 ## Features
 
 * This can create multiple EBS volume attachments
@@ -25,31 +32,31 @@ module "kafka_ebs" {
   aws_region = "eu-west-1"
   asg_name   = "${module.kafka5.asg_name}"
 
-  mount_point {				# Mount point on EC2 instance
+  mount_point = {				# Mount point on EC2 instance
     "0" = "/dev/sdf"
     "1" = "/dev/sdg"
   }
-  block_iops  {				#This is 0 for gp2 type disks. Set to #val if using piops
+  block_iops  = {				#This is 0 for gp2 type disks. Set to #val if using piops
     "0" = "0"
     "1" = "0"
   }
-  block_size {				#Size in GB of disks
+  block_size = {				#Size in GB of disks
     "0" = "11"
     "1" = "12"
   }
-  block_type {				#EBS voltype
+  block_type = {				#EBS voltype
     "0" = "gp2"
     "1" = "gp2"
   }
-  tag_value {				#tags to differentiate different types of disks.
+  tag_value = {				#tags to differentiate different types of disks.
     "0" = "kafka_data"
     "1" = "kafka_vol"
   }
-  extra_tags {				# Additional tags to EBS. Must be prefixed with the volume key
+  extra_tags = {				# Additional tags to EBS. Must be prefixed with the volume key
     "0.Name"   = "Kafka Volume"
     "0.Backup" = "Backup_Retention"
   }
-  encrypted {				# encrypts EBS, "True" or "true" or "1" will enable encryption, anything else will be evaluated to False
+  encrypted = {				# encrypts EBS, "True" or "true" or "1" will enable encryption, anything else will be evaluated to False
     "0" = "True"
     "1" = "False"
     "2" = "True"
