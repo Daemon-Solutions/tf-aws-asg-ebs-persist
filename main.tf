@@ -34,6 +34,7 @@ module "lambda" {
   time_limit      = var.time_limit
   encrypted       = var.encrypted
   aws_region      = var.aws_region
+  runtime         = var.runtime
 }
 
 module "cw_event" {
