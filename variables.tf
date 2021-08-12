@@ -84,3 +84,8 @@ variable "encrypted" {
   }
 }
 
+variable runtime {
+  description = ""
+  type        = string
+  default     = "python3.7"
+}

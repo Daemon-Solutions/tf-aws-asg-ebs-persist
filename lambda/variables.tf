@@ -11,6 +11,10 @@ variable "time_limit" {
 variable "asg_name" {
 }
 
+variable "runtime" {
+  type = string
+}
+
 variable "lambda_role_arn" {
 }
 
